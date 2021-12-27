@@ -13,7 +13,7 @@
 
 class ThreadPool {
 public:
-    ThreadPool(size_t);
+    explicit ThreadPool(size_t);
     template<class F, class... Args>
     auto enqueue(F&& f, Args&&... args) 
         -> std::future<typename std::result_of<F(Args...)>::type>;
@@ -34,7 +34,7 @@ private:
 inline ThreadPool::ThreadPool(size_t threads)
     :   stop(false)
 {
-    for(size_t i = 0;i<threads;++i)
+    for(size_t i = 0; i < threads; ++i)
         workers.emplace_back(
             [this]
             {
@@ -63,6 +63,7 @@ template<class F, class... Args>
 auto ThreadPool::enqueue(F&& f, Args&&... args) 
     -> std::future<typename std::result_of<F(Args...)>::type>
 {
+    // using 可重定义一个模板， using 的别名用法覆盖了 typedef 的所有用法
     using return_type = typename std::result_of<F(Args...)>::type;
 
     auto task = std::make_shared< std::packaged_task<return_type()> >(
